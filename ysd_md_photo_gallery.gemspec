@@ -8,6 +8,9 @@ Gem::Specification.new do |s|
   s.description = "Photo Collection management"
   s.summary = "Configuration for webapps"
   
-  s.add_runtime_dependency "gdata_19"
-  s.add_runtime_dependency "ysd_md_integration"
+  s.add_runtime_dependency "data_mapper", "1.1.0"  
+  s.add_runtime_dependency "gdata_19"              # Picasa API
+  
+  s.add_runtime_dependency "ysd_md_integration"    # The account associated to an album
+  
 end
