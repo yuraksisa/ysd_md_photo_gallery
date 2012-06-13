@@ -12,5 +12,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "gdata_19"              # Picasa API
   
   s.add_runtime_dependency "ysd_md_integration"    # The account associated to an album
+  s.add_runtime_dependency "ysd_md_configuration"  # To access to the system configuration
   
 end

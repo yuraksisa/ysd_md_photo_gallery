@@ -1,4 +1,5 @@
-require 'ysd_md_externalserviceaccount' if not defined?(Integration::ExternalServiceAccount)
+require 'ysd_md_externalserviceaccount' unless defined?(Integration::ExternalServiceAccount)
+require 'ysd_md_configuration' unless defined?(SystemConfiguration::Variable)
 
 module Media
   
@@ -16,7 +17,7 @@ module Media
     
     property :external_album, String, :field => 'external_album', :length => 50 # The external album 
     property :adapter, String, :field => 'adapter', :length => 12
-    belongs_to :account, 'ExternalIntegration::ExternalServiceAccount', :child_key => ['account_id'], :parent_key => ['id']
+    belongs_to :account, 'ExternalIntegration::ExternalServiceAccount', :child_key => ['account_id'], :parent_key => ['id'], :required => false
 
     property :size, Integer, :field => 'size' # Number of items which are hold
     property :remaining, Integer, :field => 'remaining' # Remaining number of items
@@ -25,6 +26,23 @@ module Media
     property :thumbnail_url, String, :field => 'thumbnail_url', :length => 128
     
     alias old_save save
+    
+    #
+    # Before creating the album
+    #
+    before :create do |album|
+    
+      unless adapter
+        album.adapter = SystemConfiguration::Variable.get_value('photo_default_adapter')
+      end
+      
+      unless account 
+        if default_account = SystemConfiguration::Variable.get_value('photo_default_account')
+          album.account = ExternalIntegration::ExternalServiceAccount.get(default_account)
+        end
+      end
+    
+    end
     
     #
     # Saves the album
@@ -128,8 +146,9 @@ module Media
     #
     def get_adapter
       unless defined?(@_adapter)
-        @_adapter = PhotoCollection::PicasaAdapter.new(self.account.username, self.account.password) if self.adapter == 'picasa'
-        puts "created adapter"
+        puts "creating adapter #{account.username} #{adapter}"
+        @_adapter = PhotoCollection::PicasaAdapter.new(account.username, account.password) if self.adapter == 'picasa' and account
+        puts "created adapter #{account.username} #{adapter}"
       end
       @_adapter
     end
