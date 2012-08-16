@@ -282,9 +282,10 @@ module PhotoCollection
     #
     # Get the image
     #
-    def image_url_to_size(image_url, size)
+    def image_url_to_size(image_url, width, height)
       
       path = image_url
+      size = [width, height].max
       
       if path_parts=image_url.match(/(.+)\/(.+)$/)
         path = "#{path_parts[1]}/s#{size}/#{path_parts[2]}"

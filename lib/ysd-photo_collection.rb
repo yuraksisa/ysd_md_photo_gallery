@@ -264,9 +264,9 @@ module PhotoCollection
     #
     # Get the image
     #
-    def get_image_url(size)
+    def get_image_url(width, height)
       
-      @adapter.image_url_to_size(image_url, size)
+      @adapter.image_url_to_size(image_url, width, height)
       
     end
   
