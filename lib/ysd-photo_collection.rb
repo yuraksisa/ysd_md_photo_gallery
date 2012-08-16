@@ -260,6 +260,15 @@ module PhotoCollection
       }.to_json
      
     end
+    
+    #
+    # Get the image
+    #
+    def get_image_url(size)
+      
+      @adapter.image_url_to_size(image_url, size)
+      
+    end
   
     #
     # Stores the photo
