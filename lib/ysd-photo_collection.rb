@@ -48,14 +48,22 @@ module PhotoCollection
     
     def get_by_id(adapter, album_id)
     
-      @albums_id_hash[adapter][album_id]
-    
+      if @albums_id_hash.has_key?(adapter)
+        @albums_id_hash[adapter][album_id]
+      else
+        return nil
+      end
+      
     end
     
     def get_by_name(adapter, album_name)
      
-      @albums_name_hash[adapter][album_id]
-    
+      if @albums_name_hash.has_key?(adapter)
+        @albums_name_hash[adapter][album_id]
+      else
+        return nil
+      end
+      
     end
     
     def all(adapter)
