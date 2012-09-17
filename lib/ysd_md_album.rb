@@ -1,3 +1,4 @@
+require 'data_mapper' unless defined?DataMapper
 require 'ysd_md_externalserviceaccount' unless defined?(Integration::ExternalServiceAccount)
 require 'ysd_md_configuration' unless defined?(SystemConfiguration::Variable)
 
@@ -99,11 +100,8 @@ module Media
         self.external_album = destination_album.id
         self.save
 
-        puts "new album : id #{destination_album.id}"
-
       else
         photo.album = destination_album
-        puts "photo : #{photo.to_json}"
         photo.save(true)
       end
     
