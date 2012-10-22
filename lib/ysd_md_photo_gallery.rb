@@ -1,4 +1,6 @@
 require 'ysd_md_album'
+require 'ysd_md_fieldset_album'
+require 'ysd_md_fieldset_photo'
 require 'ysd-photo_support'
 require 'ysd-photo_collection'
 require 'ysd-photo_picasa_adapter'

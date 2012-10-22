@@ -10,7 +10,7 @@ module Media
   class Album
     include DataMapper::Resource
     
-    property :name, String, :field => 'name', :length => 32, :key => true
+    property :name, String, :field => 'name', :length => 40, :key => true
     property :description, String, :field => 'description', :length => 255
         
     property :width, Integer, :field => 'width'    # The element width
@@ -44,7 +44,7 @@ module Media
       end
     
     end
-    
+        
     #
     # Saves the album
     #
@@ -110,6 +110,27 @@ module Media
     end
 
     #
+    # Removes a photo from the album
+    #
+    def delete_photo(photo_id)
+    
+      if photo = (photos.select { |photo| photo.id == photo_id }).first
+        photo.delete
+      end
+      
+    end
+
+    #
+    # Gets the albums photos
+    #
+    # @return [Array]
+    #   An array of PhotoCollection::Photo
+    #
+    def photos
+      adapted_album.photos
+    end
+
+    #
     # Gets the adapted album, the real album which stores the images
     #
     def adapted_album
@@ -128,8 +149,6 @@ module Media
         self.bytes_used = external_album.bytes_used
         self.image_url = external_album.image_url
         self.thumbnail_url = external_album.thumbnail_url
-      
-        puts "album : #{self.to_json}"
       
         self.save
 

@@ -186,7 +186,6 @@ module PhotoCollection
       end
             
       self.photos.each do |photo| 
-        puts "Saving ... #{photo.name}"
         photo.save 
       end
       
@@ -282,9 +281,7 @@ module PhotoCollection
     # Stores the photo
     #
     def save(only_photo=false)
-    
-      puts "Saving photo. id:#{self.id} file:#{self.name}" 
-    
+        
       if self.id # Update an existing photo
       
         if self.file
