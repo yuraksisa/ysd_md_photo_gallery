@@ -1,3 +1,4 @@
+require 'stringio' unless defined?StringIO
 require 'data_mapper' unless defined?DataMapper
 require 'ysd_md_externalserviceaccount' unless defined?(Integration::ExternalServiceAccount)
 require 'ysd_md_configuration' unless defined?(SystemConfiguration::Variable)
@@ -17,8 +18,8 @@ module Media
     property :height, Integer, :field => 'height'  # The element height
     
     property :external_album, String, :field => 'external_album', :length => 50 # The external album 
-    property :adapter, String, :field => 'adapter', :length => 12
-    belongs_to :account, 'ExternalIntegration::ExternalServiceAccount', :child_key => ['account_id'], :parent_key => ['id'], :required => false
+    property :adapter, String, :field => 'adapter', :length => 12               # The adapter
+    belongs_to :account, 'ExternalIntegration::ExternalServiceAccount', :child_key => ['account_id'], :parent_key => ['id'], :required => false # The account to access
 
     property :size, Integer, :field => 'size' # Number of items which are hold
     property :remaining, Integer, :field => 'remaining' # Remaining number of items

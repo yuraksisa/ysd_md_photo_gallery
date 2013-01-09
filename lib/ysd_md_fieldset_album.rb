@@ -1,6 +1,7 @@
 require 'ysd-plugins' unless defined?Plugins::ModelAspect
 
 module FieldSet
+
   #
   # It's a module which can be used to extend a class to manage an album of photos
   #
@@ -8,7 +9,25 @@ module FieldSet
       include ::Plugins::ModelAspect
 
       def self.included(model)
-        model.property :album_name, String, :field => 'album_name', :length => 80
+      
+        if model.respond_to?(:property)
+          model.property :album_name, String, :field => 'album_name', :length => 80
+          model.property :photo_path, String, :field => 'photo_path', :length => 80 # Reference to the main photo of the album
+          model.property :photo_url_tiny, String, :field => 'photo_url_tiny', :length => 256 # Reference to the main photo of the album
+          model.property :photo_url_small, String, :field => 'photo_url_small', :length => 256 # Reference to the main photo of the album
+          model.property :photo_url_medium, String, :field => 'photo_url_medium', :length => 256 # Reference to the main photo of the album
+          model.property :photo_url_full, String, :field => 'photo_url_full', :length => 256 # Reference to the main photo of the album          
+        end
+
+        if model.respond_to?(:before)
+          model.before :save do |element|
+            if element.album_name.strip.length == 0 and element.respond_to?(:resource_info)
+              element.album_name = resource_info
+            end
+          end
+        end
+      
+
       end
       
       @album = nil
@@ -65,22 +84,16 @@ module FieldSet
                  end
         
       end
-
-      private
       
       #
       # Retrieve the album
       #
       def get_album
         
-        if album_name.nil? or album_name.to_s.strip.length == 0
-          raise 'You must initialize the album_name before accesing the album'
-        end
-        
-        unless @album
+        if @album.nil? and not album_name.empty? 
           @album = Media::Album.get(album_name)
         end
-        
+
         return @album
         
       end

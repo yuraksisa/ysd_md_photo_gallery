@@ -1,3 +1,4 @@
+require 'RMagick'
 require 'ysd_md_album'
 require 'ysd_md_fieldset_album'
 require 'ysd_md_fieldset_photo'
