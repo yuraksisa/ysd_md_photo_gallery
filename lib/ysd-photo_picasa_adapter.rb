@@ -128,8 +128,6 @@ module PhotoCollection
       
       entry_to_album(entry, album) # Updates the album data
       
-      puts "Album created #{album.name} #{album.user} "
-      
     end
 
     #
@@ -148,9 +146,7 @@ module PhotoCollection
       end
       
       entry_to_album(entry, album) # Updates the album data
-    
-      puts "Album updated #{album}"
-    
+        
     end
     
     #
@@ -175,7 +171,6 @@ module PhotoCollection
     #
     def create_photo(photo)
    
-      puts "photo : #{photo_to_entry(photo)}"
       mime_type = photo.mime_type || 'image/jpeg'
       body = GData::HTTP::MimeBody.new(photo_to_entry(photo), photo.file, mime_type)
       entry = nil    
@@ -185,8 +180,6 @@ module PhotoCollection
       end
       
       entry_to_photo(entry, photo) #Update the photo data
-      
-      puts "Photo created #{photo}"
     
     end
     
@@ -215,7 +208,6 @@ module PhotoCollection
     #
     def update_photo(photo)
     
-      puts "photo : #{photo_to_entry(photo)}"
       mime_type = photo.mime_type || 'image/jpeg'
       body = GData::HTTP::MimeBody.new(photo_to_entry(photo), photo.file, mime_type)  
       entry = nil
@@ -226,8 +218,6 @@ module PhotoCollection
       end
       
       entry_to_photo(entry, photo) #Update the photo data
-      
-      puts "Photo updated #{photo}"
     
     end
    

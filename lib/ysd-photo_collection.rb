@@ -109,7 +109,6 @@ module PhotoCollection
         albums = AlbumCache.instance.all(@adapter)
       else     
         albums = @adapter.get_albums
-        puts "albums : #{albums.to_json}"
         albums.each do |album|
           AlbumCache.instance.store(@adapter, album)
         end

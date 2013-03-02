@@ -11,7 +11,7 @@ module FieldSet
       def self.included(model)
       
         if model.respond_to?(:property)
-          model.property :album_name, String, :field => 'album_name', :length => 80
+          model.property :album_name, String, :field => 'album_name', :length => 40
           model.property :photo_path, String, :field => 'photo_path', :length => 80 # Reference to the main photo of the album
           model.property :photo_url_tiny, String, :field => 'photo_url_tiny', :length => 256 # Reference to the main photo of the album
           model.property :photo_url_small, String, :field => 'photo_url_small', :length => 256 # Reference to the main photo of the album
@@ -21,9 +21,7 @@ module FieldSet
 
         if model.respond_to?(:before)
           model.before :save do |element|
-            if element.album_name.strip.length == 0 and element.respond_to?(:resource_info)
-              element.album_name = resource_info
-            end
+             element.album_name ||= element.default_album_name
           end
         end
       
@@ -44,9 +42,7 @@ module FieldSet
       #
       def album_add_photo(photo_data, photo_file)
         
-        if album = get_album
-          album.add_or_update_photo(photo_data, photo_file)          
-        end
+        album.add_or_update_photo(photo_data, photo_file) if album         
         
       end
       
@@ -54,11 +50,9 @@ module FieldSet
       # Updates an album photo
       #
       def album_update_photo!(photo_data, photo_file)
-      
-        if album = get_album
-          album.add_or_update_photo(photo_data, photo_file)
-        end
-      
+     
+        album.add_or_update_photo(photo_data, photo_file) if album
+        
       end
       
       #
@@ -66,9 +60,7 @@ module FieldSet
       #
       def album_remove_photo!(photo_id)
         
-        if album = get_album
-          album.delete_photo(photo_id)
-        end
+        album.delete_photo(photo_id) if album
       
       end
 
@@ -77,7 +69,7 @@ module FieldSet
       #
       def album_photos
         
-        photos = if album=get_album
+        photos = if album
                    album.photos
                  else
                    []
@@ -88,14 +80,27 @@ module FieldSet
       #
       # Retrieve the album
       #
-      def get_album
+      def album
         
-        if @album.nil? and not album_name.empty? 
-          @album = Media::Album.get(album_name)
+        if @album.nil?
+          @album = Media::Album.get(album_name || default_album_name)
         end
 
         return @album
         
+      end
+      
+      #
+      # Default album name
+      #
+      def default_album_name
+
+        if respond_to?(:resource_info)
+          return resource_info
+        else
+          raise "The element class must supply resource_info method"
+        end
+
       end
 
   end #Photo
