@@ -11,7 +11,7 @@ module Media
   class Album
     include DataMapper::Resource
     
-    property :name, String, :field => 'name', :length => 40, :key => true
+    property :name, String, :field => 'name', :length => 50, :key => true
     property :description, String, :field => 'description', :length => 255
         
     property :width, Integer, :field => 'width'    # The element width
@@ -201,9 +201,18 @@ module Media
     
        img = Magick::Image.from_blob(file.read).first      
        if img
-         img.resize_to_fill(options[:width], options[:height], Magick::CenterGravity)
+         p "#{options[:width]},#{options[:height]}"
+         #img.resize_to_fill(options[:width], options[:height], Magick::CenterGravity)
+         if options.has_key?(:width) and options[:width] > 0
+           if options.has_key?(:height) and options[:height] > 0
+             img.resize_to_fit(options[:width], options[:height])
+           else
+             img.resize_to_fit(options[:width])
+           end
+         end
        end
-    
+       
+       return img
     end 
         
   end #Album

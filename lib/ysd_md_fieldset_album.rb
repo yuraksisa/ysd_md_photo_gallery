@@ -19,11 +19,11 @@ module FieldSet
           model.property :photo_url_full, String, :field => 'photo_url_full', :length => 256 # Reference to the main photo of the album          
         end
 
-        if model.respond_to?(:before)
-          model.before :save do |element|
-             element.album_name ||= element.default_album_name
-          end
-        end
+        #if model.respond_to?(:before)
+        #  model.before :save do |element|
+        #     element.album_name ||= element.default_album_name
+        #  end
+        #end
       
 
       end

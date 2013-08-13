@@ -296,8 +296,8 @@ module PhotoCollection
       album.name = entry.elements['title'].text
       album.summary = entry.elements['summary'].text
       album.size = entry.elements['gphoto:numphotos'].text.to_i
-      album.remaining = entry.elements['gphoto:numphotosremaining'].text.to_i
-      album.bytes_used = entry.elements['gphoto:bytesUsed'].text.to_i
+      album.remaining = entry.elements['gphoto:numphotosremaining'].text.to_i unless entry.elements['gphoto:numphotosremaining'].nil?
+      album.bytes_used = entry.elements['gphoto:bytesUsed'].text.to_i unless entry.elements['gphoto:bytesUsed'].nil?
       album.image_url = entry.elements['media:group'].elements['media:content'].attributes['url']
       album.thumbnail_url = entry.elements['media:group'].elements['media:thumbnail'].attributes['url']
     
