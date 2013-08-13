@@ -201,13 +201,12 @@ module Media
     
        img = Magick::Image.from_blob(file.read).first      
        if img
-         p "#{options[:width]},#{options[:height]}"
          #img.resize_to_fill(options[:width], options[:height], Magick::CenterGravity)
          if options.has_key?(:width) and options[:width] > 0
            if options.has_key?(:height) and options[:height] > 0
-             img.resize_to_fit(options[:width], options[:height])
+             img = img.resize_to_fit(options[:width], options[:height])
            else
-             img.resize_to_fit(options[:width])
+             img = img.resize_to_fit(options[:width])
            end
          end
        end
