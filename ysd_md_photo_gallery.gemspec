@@ -16,6 +16,10 @@ Gem::Specification.new do |s|
     
   s.add_runtime_dependency "ysd_md_integration"    # The account associated to an album
   s.add_runtime_dependency "ysd_md_configuration"  # To access to the system configuration
-  s.add_runtime_dependency "ysd_core_plugins"     # Aspects
+  s.add_runtime_dependency "ysd_core_plugins"      # Aspects
+  
+  s.add_development_dependency "rake"
+  s.add_development_dependency "rspec"
+  s.add_development_dependency "dm-sqlite-adapter" # Model testing using sqlite
   
 end
