@@ -11,24 +11,58 @@ module FieldSet
       def self.included(model)
       
         if model.respond_to?(:property)
-          model.property :album_name, String, :field => 'album_name', :length => 40
-          model.property :photo_path, String, :field => 'photo_path', :length => 80 # Reference to the main photo of the album
-          model.property :photo_url_tiny, String, :field => 'photo_url_tiny', :length => 256 # Reference to the main photo of the album
-          model.property :photo_url_small, String, :field => 'photo_url_small', :length => 256 # Reference to the main photo of the album
-          model.property :photo_url_medium, String, :field => 'photo_url_medium', :length => 256 # Reference to the main photo of the album
-          model.property :photo_url_full, String, :field => 'photo_url_full', :length => 256 # Reference to the main photo of the album          
+          model.belongs_to :album, 'Media::Album', :child_key => [:album_id], :parent_key => [:id]
+
+          #model.property :album_name, String, :field => 'album_name', :length => 40
+          #model.property :photo_path, String, :field => 'photo_path', :length => 80 # Reference to the main photo of the album
+          #model.property :photo_url_tiny, String, :field => 'photo_url_tiny', :length => 256 # Reference to the main photo of the album
+          #model.property :photo_url_small, String, :field => 'photo_url_small', :length => 256 # Reference to the main photo of the album
+          #model.property :photo_url_medium, String, :field => 'photo_url_medium', :length => 256 # Reference to the main photo of the album
+          #model.property :photo_url_full, String, :field => 'photo_url_full', :length => 256 # Reference to the main photo of the album          
         end
-
-        #if model.respond_to?(:before)
-        #  model.before :save do |element|
-        #     element.album_name ||= element.default_album_name
-        #  end
-        #end
       
-
       end
-      
-      @album = nil
+
+      def album_name
+        album ? album.name : nil
+      end
+
+      def photo_path
+        album ? album.image_path : nil
+      end
+
+      def photo_url_tiny
+        album ? album.thumbnail_tiny_url : nil
+      end
+
+      def photo_url_small
+        album ? album.thumbnail_url : nil
+      end
+
+      def photo_url_medium
+        album ? album.thumbnail_medium_url : nil
+      end
+
+      def photo_url_full
+        album ? album.image_url : nil
+      end
+
+      #
+      # Serializes the object to json
+      # 
+      def as_json(options={})
+ 
+        methods = options[:methods] || []
+        methods << :album_name
+        methods << :photo_path
+        methods << :photo_url_tiny
+        methods << :photo_url_small
+        methods << :photo_url_medium
+        methods << :photo_url_full
+
+        super(options.merge({:methods => methods}))
+
+      end 
       
       #
       # Add a photo to the album
@@ -42,16 +76,20 @@ module FieldSet
       #
       def album_add_photo(photo_data, photo_file)
         
-        album.add_or_update_photo(photo_data, photo_file) if album         
-        
+        if album 
+          album.add_or_update_photo(photo_data, photo_file)         
+        end
+
       end
       
       #
       # Updates an album photo
       #
       def album_update_photo!(photo_data, photo_file)
-     
-        album.add_or_update_photo(photo_data, photo_file) if album
+
+        if album 
+          album.add_or_update_photo(photo_data, photo_file)
+        end
         
       end
       
@@ -60,8 +98,10 @@ module FieldSet
       #
       def album_remove_photo!(photo_id)
         
-        album.delete_photo(photo_id) if album
-      
+        if album
+          album.delete_photo(photo_id)
+        end
+
       end
 
       #
@@ -69,39 +109,13 @@ module FieldSet
       #
       def album_photos
         
-        photos = if album
-                   album.photos
-                 else
-                   []
-                 end
-        
-      end
-      
-      #
-      # Retrieve the album
-      #
-      def album
-        
-        if @album.nil?
-          @album = Media::Album.get(album_name || default_album_name)
-        end
-
-        return @album
-        
-      end
-      
-      #
-      # Default album name
-      #
-      def default_album_name
-
-        if respond_to?(:resource_info)
-          return resource_info
+        if album
+          album.photos
         else
-          raise "The element class must supply resource_info method"
+          []
         end
-
+        
       end
-
+      
   end #Photo
 end #FieldSet

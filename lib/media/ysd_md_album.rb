@@ -158,7 +158,29 @@ module Media
     end
 
     #
-    # Get the album cover photo URL in thumbnail size
+    # Get the image path
+    #
+    def image_path
+      photo = album_cover ? album_cover.photo : photos.first
+      "/album/#{id}/photo/#{photo.id}"
+    end
+
+    #
+    # Get the album cover photo URL in thumbnail size (medium)
+    #
+    def thumbnail_medium_url
+      album_cover ? album_cover.photo.photo_url_medium : photos.size > 0 ? photos.first.photo_url_medium : nil
+    end
+
+    #
+    # Get the album cover photo URL in thumbnail size (tiny)
+    #
+    def thumbnail_tiny_url
+      album_cover ? album_cover.photo.photo_url_tiny : photos.size > 0 ? photos.first.photo_url_tiny : nil
+    end
+
+    #
+    # Get the album cover photo URL in thumbnail size (small)
     #
     def thumbnail_url
       album_cover ? album_cover.photo.photo_url_small : photos.size > 0 ? photos.first.photo_url_small : nil
