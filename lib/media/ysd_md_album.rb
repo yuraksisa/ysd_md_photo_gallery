@@ -15,6 +15,7 @@ module Media
 
     property :id, Serial
     property :name, String, :field => 'name', :length => 100
+    property :prefix, String, :field => 'prefix', :length => 100
     property :description, String, :field => 'description', :length => 255
         
     property :width, Integer, :field => 'width'    # The element width
@@ -31,31 +32,34 @@ module Media
     property :bytes_used, Integer, :field => 'bytes_used' # The total space used
 
     has 1, :album_cover
-
-    #
-    # Before creating the album
-    #
-    before :create do |album|
-         
-      unless media_storage
-        if default_storage = SystemConfiguration::Variable.get_value('media.default_storage')
-          album.media_storage = Media::Storage.get(default_storage)
-        end
-      end
-    
-    end
         
     #
     # Saves the album
     #
     def save
-        
-      if self.media_storage and (not self.media_storage.saved?)
-        self.media_storage = Media::Storage.get(self.media_storage.id)
+      
+      if self.new?
+        unless media_storage
+          if default_storage = SystemConfiguration::Variable.get_value('media.default_storage')
+            self.media_storage = Media::Storage.get(default_storage)
+          end
+        end
       end
-     
-      super
+
+      if self.media_storage and (not self.media_storage.saved?)
+        self.media_storage = Media::Storage.get(self.media_storage.name)
+      end
     
+      begin 
+        super
+        if name.nil? and prefix
+          update(:name => "#{prefix}#{id}")
+        end
+      rescue DataMapper::SaveFailureError => error
+             p "Error saving album #{error} #{self.inspect} #{self.errors.inspect}"
+             raise error 
+      end
+
     end
 
     #

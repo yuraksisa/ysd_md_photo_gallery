@@ -1,10 +1,11 @@
+require 'ysd_md_yito' unless defined?Yito::Model::Finder
 module Media
   #
   # It represents a media storage and the credentials to access
   #	
   class Storage
     include DataMapper::Resource
-    extend Yito::Model::Finder
+    extend ::Yito::Model::Finder
     
     storage_names[:default] = 'media_storages'
 
@@ -14,7 +15,7 @@ module Media
       :child_key => ['account_id'], :parent_key => ['id'], :required => false # The account to access
 
     #
-    # Saves the album
+    # Saves the media storage
     #
     def save
         

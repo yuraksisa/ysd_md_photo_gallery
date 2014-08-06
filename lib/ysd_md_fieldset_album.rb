@@ -9,18 +9,14 @@ module FieldSet
       include ::Plugins::ModelAspect
 
       def self.included(model)
-      
         if model.respond_to?(:property)
-          model.belongs_to :album, 'Media::Album', :child_key => [:album_id], :parent_key => [:id]
+          model.belongs_to :album, 'Media::Album', :child_key => [:album_id], :parent_key => [:id], :required => false
+         end
+      end
 
-          #model.property :album_name, String, :field => 'album_name', :length => 40
-          #model.property :photo_path, String, :field => 'photo_path', :length => 80 # Reference to the main photo of the album
-          #model.property :photo_url_tiny, String, :field => 'photo_url_tiny', :length => 256 # Reference to the main photo of the album
-          #model.property :photo_url_small, String, :field => 'photo_url_small', :length => 256 # Reference to the main photo of the album
-          #model.property :photo_url_medium, String, :field => 'photo_url_medium', :length => 256 # Reference to the main photo of the album
-          #model.property :photo_url_full, String, :field => 'photo_url_full', :length => 256 # Reference to the main photo of the album          
-        end
-      
+      def save
+        check_album! if album
+        super
       end
 
       def album_name
@@ -117,5 +113,15 @@ module FieldSet
         
       end
       
+      private 
+
+      def check_album!
+
+        if self.album and (not self.album.saved?) and loaded_album = Media::Album.get(self.album.id)
+          self.album = loaded_album
+        end
+
+      end
+
   end #Photo
 end #FieldSet

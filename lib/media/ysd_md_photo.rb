@@ -60,9 +60,9 @@ module Media
                  
         unless storage_album 
           storage_album = MediaIntegration::Album.new(adapter)
-          storage_album.name = name       
+          storage_album.name = album.name       
           storage_photo.album = storage_album
-          storage_album.photos << photo
+          storage_album.photos << storage_photo
           storage_album.save
           album.external_album = storage_album.id
           album.save
@@ -81,7 +81,34 @@ module Media
 
       end 
 
+      def destroy
+         
+        if external_photo and not external_photo.empty?
+          delete_photo_file!
+        end
+
+        super
+
+      end
+
+      def get_image_url(width, height)
+
+        album.media_storage.get_adapter.image_url_to_size(photo_url_full, width, height)
+
+      end
+
       private
+
+      #
+      # Delete the photo_file
+      #
+      def delete_photo_file!
+
+        if external_photo = get_external_photo
+          external_photo.delete
+        end
+
+      end
 
       # Adjusts an file applying options
       #
@@ -116,7 +143,7 @@ module Media
       def get_external_photo
 
         if adapted_album = album.adapted_album
-          (photos.select { |photo| photo.id == external_photo }).first
+          (adapted_album.photos.select { |photo| photo.id == external_photo }).first
         end
 
       end
