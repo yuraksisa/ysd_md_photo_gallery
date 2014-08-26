@@ -20,7 +20,8 @@ module Media
         
     property :width, Integer, :field => 'width'    # The element width
     property :height, Integer, :field => 'height'  # The element height
-    
+    property :root, Boolean, :field => 'root', :default => true
+
     property :external_album, String, :field => 'external_album', :length => 50 # The external album 
 
     belongs_to :media_storage, 'Media::Storage',
