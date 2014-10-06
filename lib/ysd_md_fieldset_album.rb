@@ -5,13 +5,26 @@ module FieldSet
   #
   # It's a module which can be used to extend a class to manage an album of photos
   #
+  # Note:
+  # -------
+  # 
+  # All the models that can include an album have to override the save method in order
+  # to get the save method called. Like this:
+  #
+  #    def save
+  #      super # Invokes the super class        
+  #    end
+  #
+  #
   module Album
       include ::Plugins::ModelAspect
 
       def self.included(model)
+        
         if model.respond_to?(:property)
           model.belongs_to :album, 'Media::Album', :child_key => [:album_id], :parent_key => [:id], :required => false
-         end
+        end
+
       end
 
       def save
