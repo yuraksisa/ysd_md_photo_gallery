@@ -163,6 +163,13 @@ module Media
     end
 
     #
+    # Get the album cover photo
+    #
+    def image_cover
+      album_cover ? album_cover.photo : photos.size > 0 ? photos.first : nil
+    end
+
+    #
     # Get the image path
     #
     def image_path

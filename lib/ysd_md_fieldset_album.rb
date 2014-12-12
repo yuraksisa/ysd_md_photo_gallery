@@ -56,6 +56,10 @@ module FieldSet
         album ? album.image_url : nil
       end
 
+      def photo_url_total_full
+        album and album.image_cover ? album.image_cover.get_image_url(album.width, album.height) : nil
+      end  
+
       #
       # Serializes the object to json
       # 
