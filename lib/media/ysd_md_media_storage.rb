@@ -36,7 +36,10 @@ module Media
         #@_adapter = MediaIntegration::Adapters::PicasaAdapter.new(
         #	account.username, account.password) if self.adapter == 'picasa' and account
         @_adapter = MediaIntegration::Adapters::PicasaAdapter.new(
-         account.username, ::CLIENT_ID, ::CLIENT_SECRET, ::REFRESH_TOKEN) if self.adapter == 'picasa' and account
+         account.username, 
+         SystemConfiguration::SecureVariable.get_value('media.google.client_id'), 
+         SystemConfiguration::SecureVariable.get_value('media.google.client_secret'), 
+         SystemConfiguration::SecureVariable.get_value('media.google.refresh_token')) if self.adapter == 'picasa' and account
         puts "created adapter #{account.username} #{adapter}"
       end
       @_adapter
