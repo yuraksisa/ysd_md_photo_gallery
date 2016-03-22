@@ -64,6 +64,7 @@ module Media
           storage_photo.album = storage_album
           storage_album.photos << storage_photo
           storage_album.save
+          p "saving album : #{storage_album.id}"
           album.external_album = storage_album.id
           album.save
         else

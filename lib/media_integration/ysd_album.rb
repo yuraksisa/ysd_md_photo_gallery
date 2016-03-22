@@ -37,7 +37,8 @@ module MediaIntegration
         AlbumCache.instance.store(@adapter, self)
       end
             
-      self.photos.each do |photo| 
+      self.photos.each do |photo|
+        photo.album = self 
         photo.save 
       end
       

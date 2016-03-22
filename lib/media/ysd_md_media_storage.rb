@@ -33,8 +33,10 @@ module Media
     def get_adapter
       unless defined?(@_adapter)
         puts "creating adapter #{account.username} #{adapter}"
+        #@_adapter = MediaIntegration::Adapters::PicasaAdapter.new(
+        #	account.username, account.password) if self.adapter == 'picasa' and account
         @_adapter = MediaIntegration::Adapters::PicasaAdapter.new(
-        	account.username, account.password) if self.adapter == 'picasa' and account
+         account.username, ::CLIENT_ID, ::CLIENT_SECRET, ::REFRESH_TOKEN) if self.adapter == 'picasa' and account
         puts "created adapter #{account.username} #{adapter}"
       end
       @_adapter
