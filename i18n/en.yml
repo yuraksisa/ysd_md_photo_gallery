@@ -1,0 +1,3 @@
+adapters:
+  filesystem: Local disk
+  s3: Amazon S3

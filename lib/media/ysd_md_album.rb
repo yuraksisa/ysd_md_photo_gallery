@@ -14,23 +14,17 @@ module Media
     storage_names[:default] = 'media_albums'
 
     property :id, Serial
-    property :name, String, :field => 'name', :length => 100
-    property :prefix, String, :field => 'prefix', :length => 100
-    property :description, String, :field => 'description', :length => 255
-        
-    property :width, Integer, :field => 'width'    # The element width
-    property :height, Integer, :field => 'height'  # The element height
-    property :root, Boolean, :field => 'root', :default => true
+    property :name, String, :length => 100
+    property :root, Boolean, :default => true # Identifies if it's a root album or an album bounded to other entity
+    property :album_context, String, :length => 100 # Identifies the entity the album is bounded to
+    property :description, String, :length => 255
+    property :width, Integer
+    property :height, Integer
 
-    property :external_album, String, :field => 'external_album', :length => 50 # The external album 
-
-    belongs_to :media_storage, 'Media::Storage',
-      :child_key => ['storage_name'], :parent_key => ['name']
 
     has n, :photos, 'Media::Photo', :constraint => :destroy 
 
-    property :remaining, Integer, :field => 'remaining' # Remaining number of items
-    property :bytes_used, Integer, :field => 'bytes_used' # The total space used
+    property :adapter_name, String, length: 50
 
     has 1, :album_cover
         
@@ -40,21 +34,15 @@ module Media
     def save
       
       if self.new?
-        unless media_storage
-          if default_storage = SystemConfiguration::Variable.get_value('media.default_storage')
-            self.media_storage = Media::Storage.get(default_storage)
-          end
-        end
-      end
-
-      if self.media_storage and (not self.media_storage.saved?)
-        self.media_storage = Media::Storage.get(self.media_storage.name)
+        unless adapter_name
+          adapter_name = SystemConfiguration::Variable.get_value('media.adapter','filesystem') 
+        end  
       end
     
       begin 
         super
-        if name.nil? and prefix
-          update(:name => "#{prefix}#{id}")
+        if name.nil? and album_context
+          update(:name => album_context)
         end
       rescue DataMapper::SaveFailureError => error
              p "Error saving album #{error} #{self.inspect} #{self.errors.inspect}"
@@ -73,10 +61,10 @@ module Media
     #
     # @param [File] photo_file
     #
-    # @return [MediaIntegration::Photo]
+    # @return [Media::Photo]
     #   The photo with the updated information
     #
-    def add_or_update_photo(photo_data, photo_file)
+    def add_or_update_photo(photo_data, photo_file, filename)
 
       if photo_data.has_key?(:photo_id)
         photo = Media::Photo.get(photo_data[:photo_id])
@@ -86,73 +74,10 @@ module Media
              :description => photo_data[:photo_description]})
       end
 
-      photo.store_photo(photo_file)
+      photo.store_photo(photo_file, filename)
 
       return photo
     
-    end
-
-    #
-    # Gets the adapted album, the real album which stores the images
-    #
-    def adapted_album
-      get_external_album
-    end
-    
-    #
-    # Retrieve the information from the external album and update the album information
-    #
-    def synchronize_data
-      
-      if external_album = get_external_album
-        self.size = external_album.size
-        self.remaining = external_album.remaining
-        self.bytes_used = external_album.bytes_used
-        self.image_url = external_album.image_url
-        self.thumbnail_url = external_album.thumbnail_url
-        self.save
-      end
-    
-    end
-       
-    #
-    # Import photos from the external album
-    #                
-    def import_photos
-
-      if external_album = get_external_album
-
-        external_storage_photos = external_album.photos
-
-        # Add the photos that exist in the remote storage and not in the album
-        external_storage_photos.each do |photo|
-          unless the_photo = Photo.find_by_external_id(photo.album.id, photo.id)
-            Photo.create(:album => self,
-                         :external_photo => photo.id,
-                         :name => photo.name,
-                         :description => photo.description,
-                         :width => photo.width,
-                         :height => photo.height,
-                         :photo_url_full => photo.image_url,
-                         :photo_url_medium => photo.thumbnails.last.thumbnail_url,
-                         :photo_url_small => photo.thumbnails[1].thumbnail_url,
-                         :photo_url_tiny => photo.thumbnails.first.thumbnail_url
-                         )
-          end
-        end
-
-        # Remove the photos that exist in the album but no longer exists in the remote storage
-
-        #photos.each do |photo|
-        #
-        #  unless (external_storage_photos.select { |external_photo| external_photo.id == photo.external_photo and external_photo.album.id == photo.album.external_album}).empty?
-        #    photo.destroy
-        #  end
-        #
-        #end
-
-      end
-
     end
 
     #
@@ -174,7 +99,8 @@ module Media
     #
     def image_path
       photo = album_cover ? album_cover.photo : photos.first
-      "/album/#{id}/photo/#{photo.id}"
+      
+      return "/album/#{id}/photo/#{photo.id}"
     end
 
     #
@@ -221,23 +147,10 @@ module Media
 
     end 
 
-    private
-
-    #
-    # Gets the external album (used to manage the photos)
-    #
-    def get_external_album
-     
-      unless defined?(@_external_album)
-        media_connection = MediaIntegration::MediaConnection.new(media_storage.get_adapter)
-        @_external_album = media_connection.get_album_by_id(self.external_album)
-      end
-      
-      puts "album #{self.external_album} external_album : #{@external_album.to_json}"
-      
-      @_external_album
-      
-    end
+    def get_adapter
+      # It creates an adapter any time for multi-tenant solution
+      Adapters::Factory.instance.create_adapter(SystemConfiguration::Variable.get_value('media.adapter','filesystem'))
+    end  
                 
   end #Album
 end #Media

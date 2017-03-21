@@ -1,0 +1,3 @@
+adapters:
+  filesystem: Disc
+  s3: Amazon S3
