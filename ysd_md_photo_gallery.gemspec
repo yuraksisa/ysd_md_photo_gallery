@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name    = "ysd_md_photo_gallery"
-  s.version = "0.4.0"
+  s.version = "0.4.2"
   s.authors = ["Yurak Sisa Dream"]
   s.date    = "2011-09-15"
   s.email   = ["yurak.sisa.dream@gmail.com"]

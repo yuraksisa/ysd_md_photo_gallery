@@ -60,6 +60,7 @@ module Media
       def destroy
          
         if photo_url_full.nil? || photo_url_full.empty?
+          adapter = album.get_adapter
           adapter.delete_photo(album.id, id)
         end
 

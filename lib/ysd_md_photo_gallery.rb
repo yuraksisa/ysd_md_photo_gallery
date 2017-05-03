@@ -19,6 +19,6 @@ module Media
   SMALL_SIZE = 144
   TINY_SIZE = 72
 
-  ADAPTERS = {'filesystem': r18n.t.adapters.filesystem,
-  	          's3': r18n.t.adapters.s3}
+  ADAPTERS = {'filesystem' => r18n.t.adapters.filesystem,
+  	          's3' => r18n.t.adapters.s3}
 end	
