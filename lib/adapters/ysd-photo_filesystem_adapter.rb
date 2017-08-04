@@ -12,42 +12,49 @@ module Adapters
   #
   # FileSystem adapter for media integration
   #
-  class FileSystemAdapter
+  class FileSystemAdapter < BaseAdapter
 
-    attr_reader :root_folder
+    attr_reader :root_folder, :container_folder, :server_name_folder
 
     #
     # Constructor
     #
     def initialize(root_folder)
       @root_folder = root_folder
+      if snf = BaseAdapter.server_name_folder
+        @server_name_folder = snf
+        @container_folder = File.join(@root_folder, @server_name_folder)
+      else
+        @server_name_folder = nil
+        @container_folder = @root_folder
+      end
     end	
 
     #
     # Creates an album
     #      
     def create_album(album_id)
-      FileUtils.mkdir_p(File.join(@root_folder, album_id.to_s))
+      FileUtils.mkdir_p(File.join(@container_folder, album_id.to_s))
     end      	
 
     #
     # Deletes an album
     #
     def delete_album(album_id)
-    	raise "invalid folder" if @root_folder.nil? || @root_folder.empty? || ['/','/usr','/bin','/opt'].include?(@root_folder)
-      FileUtils.rm_rf(File.join(@root_folder, album_id.to_s), {secure: true})
+    	raise "invalid folder" if @container_folder.nil? || @container_folder.empty? || ['/','/usr','/bin','/opt'].include?(@container_folder)
+      FileUtils.rm_rf(File.join(@container_folder, album_id.to_s), {secure: true})
     end
 
     #
     # Create a photo with metadata
     #
     def create_photo(album_id, photo_id, file, filename)
-        
+
       # Make folder
-      FileUtils.mkdir_p(File.join(@root_folder, album_id.to_s, photo_id.to_s))
+      FileUtils.mkdir_p(File.join(@container_folder, album_id.to_s, photo_id.to_s))
       
       # Copy file
-      FileUtils.copy(file, File.join(@root_folder, album_id.to_s, photo_id.to_s, filename))
+      FileUtils.copy(file, File.join(@container_folder, album_id.to_s, photo_id.to_s, filename))
 
       # Create thumbnails
       create_thumbnails(album_id, photo_id, file, filename)
@@ -62,7 +69,7 @@ module Adapters
       # Delete the old photo files
       delete_photo(album_id, photo_id)
       # Creates the photo
-      FileUtils.copy(file, File.join(@root_folder, album_id.to_s, photo_id.to_s, filename))
+      FileUtils.copy(file, File.join(@container_folder, album_id.to_s, photo_id.to_s, filename))
       # Create thumbnails
       create_thumbnails(album_id, photo_id, file, filename)
 
@@ -71,8 +78,8 @@ module Adapters
     # Delete a photo 
     #
     def delete_photo(album_id, photo_id)
-    	raise "invalid folder" if @root_folder.nil? || @root_folder.empty? || ['/','/usr','/bin','/opt'].include?(@root_folder)
-      FileUtils.rm_rf(File.join(@root_folder, album_id.to_s, photo_id.to_s), {secure: true})       	
+    	raise "invalid folder" if @container_folder.nil? || @container_folder.empty? || ['/','/usr','/bin','/opt'].include?(@container_folder)
+      FileUtils.rm_rf(File.join(@container_folder, album_id.to_s, photo_id.to_s), {secure: true})
     end
 
     private 
@@ -85,22 +92,29 @@ module Adapters
       img = Magick::Image.read(file.path).first
         
       medium = img.resize_to_fit(::Media::MEDIUM_SIZE)
-      FileUtils.mkdir_p(File.join(@root_folder, album_id.to_s, photo_id.to_s, 'medium'))
-      medium.write(File.join(@root_folder, album_id.to_s, photo_id.to_s, 'medium', filename))
+      FileUtils.mkdir_p(File.join(@container_folder, album_id.to_s, photo_id.to_s, 'medium'))
+      medium.write(File.join(@container_folder, album_id.to_s, photo_id.to_s, 'medium', filename))
         
       small = img.resize_to_fit(::Media::SMALL_SIZE)
-      FileUtils.mkdir_p(File.join(@root_folder, album_id.to_s, photo_id.to_s, 'small'))
-      small.write(File.join(@root_folder, album_id.to_s, photo_id.to_s, 'small', filename))
+      FileUtils.mkdir_p(File.join(@container_folder, album_id.to_s, photo_id.to_s, 'small'))
+      small.write(File.join(@container_folder, album_id.to_s, photo_id.to_s, 'small', filename))
         
       tiny = img.resize_to_fit(::Media::TINY_SIZE)
-      FileUtils.mkdir_p(File.join(@root_folder, album_id.to_s, photo_id.to_s, 'tiny'))
-      tiny.write(File.join(@root_folder, album_id.to_s, photo_id.to_s, 'tiny', filename))
+      FileUtils.mkdir_p(File.join(@container_folder, album_id.to_s, photo_id.to_s, 'tiny'))
+      tiny.write(File.join(@container_folder, album_id.to_s, photo_id.to_s, 'tiny', filename))
 
       # Build result
-      result = {image_url: File.join('/uploads', album_id.to_s, photo_id.to_s, filename),
-                image_url_medium: File.join('/uploads', album_id.to_s, photo_id.to_s, 'medium', filename),
-                image_url_small: File.join('/uploads', album_id.to_s, photo_id.to_s, 'small', filename),
-                image_url_tiny: File.join('/uploads', album_id.to_s, photo_id.to_s, 'tiny', filename)}
+      if @server_name_folder
+        result = {image_url: File.join('/uploads', @server_name_folder, album_id.to_s, photo_id.to_s, filename),
+                  image_url_medium: File.join('/uploads', @server_name_folder, album_id.to_s, photo_id.to_s, 'medium', filename),
+                  image_url_small: File.join('/uploads', @server_name_folder, album_id.to_s, photo_id.to_s, 'small', filename),
+                  image_url_tiny: File.join('/uploads', @server_name_folder, album_id.to_s, photo_id.to_s, 'tiny', filename)}
+      else
+        result = {image_url: File.join('/uploads', album_id.to_s, photo_id.to_s, filename),
+                  image_url_medium: File.join('/uploads', album_id.to_s, photo_id.to_s, 'medium', filename),
+                  image_url_small: File.join('/uploads', album_id.to_s, photo_id.to_s, 'small', filename),
+                  image_url_tiny: File.join('/uploads', album_id.to_s, photo_id.to_s, 'tiny', filename)}
+      end
 
     end
 

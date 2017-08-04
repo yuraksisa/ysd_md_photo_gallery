@@ -30,6 +30,7 @@ module Media
       #
       # @param [File] photo_file
       # @params [String] filename
+      # @params [String] subfolder
       #
       def store_photo(photo_file, filename)
       

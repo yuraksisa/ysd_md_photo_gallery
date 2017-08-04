@@ -11,7 +11,7 @@ module Adapters
   #
   # FileSystem adapter for media integration
   #
-  class S3Adapter
+  class S3Adapter < BaseAdapter
 
     attr_reader :api_key, :secret_key, :bucket
 

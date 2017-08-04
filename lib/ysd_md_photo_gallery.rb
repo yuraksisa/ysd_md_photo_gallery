@@ -1,5 +1,6 @@
 require 'RMagick'
 require 'adapters/ysd-photo_adapter_factory'
+require 'adapters/ysd-photo_base_adapter'
 require 'adapters/ysd-photo_filesystem_adapter'
 require 'adapters/ysd-photo_s3_adapter'
 require 'media/ysd_md_album'
