@@ -99,8 +99,11 @@ module Media
     #
     def image_path
       photo = album_cover ? album_cover.photo : photos.first
-      
-      return "/album/#{id}/photo/#{photo.id}"
+      if photo
+        return "/album/#{id}/photo/#{photo.id}"
+      else
+        return nil
+      end
     end
 
     #
