@@ -68,6 +68,9 @@ module Adapters
         
       # Delete the old photo files
       delete_photo(album_id, photo_id)
+
+      # Creates the folder if not exist
+      FileUtils.mkdir_p(File.join(@container_folder, album_id.to_s, photo_id.to_s))
       # Creates the photo
       FileUtils.copy(file, File.join(@container_folder, album_id.to_s, photo_id.to_s, filename))
       # Create thumbnails
